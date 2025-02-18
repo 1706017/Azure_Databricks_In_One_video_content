@@ -114,6 +114,93 @@ Sol:
           .load('abfss://container@storage_account_name.dfs.core.windows.net/filename.csv')
 
 =============================================================================
+Date:18th Feb 2025
+Day-02
+=================
+Q10) Transformations that we will use here are mentioned below ?
+
+Sol:
+
+ from pyspark.sql.functions import *
+ from pyspark.sql.types import *
+
+ #converting a column into a list separated by space
+ df2 = df1.withColumn('Item_Type',split(col('Item_Type'),' '))
+
+#adding a new flag column having constant value
+ df3 = df2.withColumn('flag',lit('yes')) 
+
+#change the datatype of a column
+ df4 = df3.withColumn('ItemVisiblity',col('ItemVisiblity').cast(StringType()))
+
+============================================================================
+Q11) How to access one notebook from another notebook?
+Sol: We just need to use %run '/workspace_name/notebook_1' 
+        so now we are able to access notebook_1 from notebook_2
+
+============================================================================
+Q12) How to write the transformed data into sink in delta lake format?
+
+Sol: df4.write.format('delta')\
+             .mode('append/overwrite/errorIfExists/ignore')\
+             .option('path','abfss://sink@dataamritlake.dfs.core.windows.net/destination/')\
+             .save() 
+===========================================================================
+Q13) What is the difference between Managed delta tables vs External Delta tables in databricks?
+
+Sol: 
+	• When we create any delta tables in databricks by default it is managed delta tables and in this delta table the metadata is stored inside the metastore and real data gets stored inside the default cloud storage account of azure and if we delete or drop this managed table both metadata and date gets deleted 
+
+	• On the other hand in case of external delta tables only metadata gets deleted but the real data will be available as the data is stored externally and not managed by databricks
+
+%sql
+ CREATE DATABASE salesDB;
+ 
+%md
+##Creation of delta table
+
+%sql
+ CREATE TABLE salesDB.mantable
+ (
+  id INT,
+  name STRING,
+  marks INT
+ )
+ USING DELTA;
+
+%md
+##Creation of External Delta Tables
+
+CREATE TABLE salesDB.exttable
+ (
+  id INT,
+  name STRING,
+  marks INT
+ )
+ USING DELTA
+ LOCATION '/path/to/storage/location'
+================================================================================================================
+ Q14) How to know all the changes that has been done on the delta tables?
+Sol:
+
+DESCRIBE HISTORY table_name; #to know all the changes that have been done on delta table
+ 
+RESTORE TABLE table_name TO VERSION AS OF 2; #It will restore to the version 2 of the table
+
+ VACUUM Table_name ; #to delete the version of delta tables that we do not want and those are more than 7 days
+
+ OPTIMIZE table_name; #it basically skip data and helpful for faster reads 
+
+ OPTIMIZE table_name ZORDER BY id; #zorder indexing
+
+ ![image](https://github.com/user-attachments/assets/b4ef25a7-1e4b-4127-9054-941180300701)
+
+
+
+
+
+
+
 
 
 
